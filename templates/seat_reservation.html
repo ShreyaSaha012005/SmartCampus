@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Seat Reservation{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Seat Reservation System</h1>
+        <p>Book your spot in the library, canteen, or seminar halls</p>
+    </div>
+    
+    <div style="display: flex; justify-content: center;">
+        <div class="glass-card" style="width: 100%; max-width: 500px;">
+            <form action="{{ url_for('seat_reservation') }}" method="POST">
+                <div class="form-group">
+                    <label for="venue"><i class="fa-solid fa-location-dot"></i> Select Venue</label>
+                    <select id="venue" name="venue" class="form-control" style="appearance: none; background-color: rgba(0,0,0,0.2);" required>
+                        <option value="" disabled selected>Choose a venue...</option>
+                        <option value="Library" style="color: black;">Library</option>
+                        <option value="Canteen" style="color: black;">Canteen</option>
+                        <option value="Seminar Hall" style="color: black;">Seminar Hall</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="seat_number"><i class="fa-solid fa-chair"></i> Seat Number</label>
+                    <input type="text" id="seat_number" name="seat_number" class="form-control" placeholder="e.g. L-12 or C-04" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reservation_time"><i class="fa-regular fa-clock"></i> Date & Time</label>
+                    <input type="datetime-local" id="reservation_time" name="reservation_time" class="form-control" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">
+                    Confirm Reservation
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Classroom Monitoring{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Smart Classroom Monitoring</h1>
+        <p>Monitor room usage and control lights/fans via IoT</p>
+    </div>
+    
+    <div class="dashboard-grid">
+        {% for room in rooms %}
+        <div class="glass-card" id="room-card-{{ room.id }}">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+                <h3 style="font-size: 1.5rem;">{{ room.room_number }}</h3>
+                <span id="room-usage-{{ room.id }}" class="status-badge {{ 'status-warning' if room.usage_status == 'Occupied' else 'status-free' }}">
+                    {{ room.usage_status }}
+                </span>
+            </div>
+            
+            <div style="display: flex; justify-content: space-around; margin-bottom: 1.5rem;">
+                <!-- Lights Control -->
+                <div class="text-center">
+                    <i id="lights-icon-{{ room.id }}" class="fa-solid fa-lightbulb" style="font-size: 2.5rem; margin-bottom: 0.5rem; color: {{ '#f59e0b' if room.lights_status == 'ON' else '#94a3b8' }}; transition: color 0.3s;"></i>
+                    <p>Lights</p>
+                    <label class="switch mt-1" style="display: inline-block; position: relative; width: 50px; height: 24px;">
+                        <input id="lights-check-{{ room.id }}" type="checkbox" style="opacity: 0; width: 0; height: 0;" {% if room.lights_status == 'ON' %}checked{% endif %} onchange="toggleDevice('{{ room.id }}', 'lights', this.checked ? 'ON' : 'OFF')">
+                        <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--glass-border); border-radius: 24px; transition: .4s;">
+                            <span id="lights-slider-{{ room.id }}" style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; border-radius: 50%; transition: .4s; transform: {{ 'translateX(26px)' if room.lights_status == 'ON' else 'translateX(0)' }};"></span>
+                        </span>
+                    </label>
+                </div>
+                
+                <!-- Fan Control -->
+                <div class="text-center">
+                    <i id="fans-icon-{{ room.id }}" class="fa-solid fa-fan" style="font-size: 2.5rem; margin-bottom: 0.5rem; color: {{ '#3b82f6' if room.fans_status == 'ON' else '#94a3b8' }}; transition: color 0.3s; {% if room.fans_status == 'ON' %}animation: spin 2s linear infinite;{% endif %}"></i>
+                    <p>Fans</p>
+                    <label class="switch mt-1" style="display: inline-block; position: relative; width: 50px; height: 24px;">
+                        <input id="fans-check-{{ room.id }}" type="checkbox" style="opacity: 0; width: 0; height: 0;" {% if room.fans_status == 'ON' %}checked{% endif %} onchange="toggleDevice('{{ room.id }}', 'fans', this.checked ? 'ON' : 'OFF')">
+                        <span class="slider" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--glass-border); border-radius: 24px; transition: .4s;">
+                            <span id="fans-slider-{{ room.id }}" style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; background-color: white; border-radius: 50%; transition: .4s; transform: {{ 'translateX(26px)' if room.fans_status == 'ON' else 'translateX(0)' }};"></span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+@keyframes spin { 100% { transform: rotate(360deg); } }
+input:checked + .slider { background-color: var(--accent-color) !important; }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleDevice(roomId, device, status) {
+        fetch('/toggle_device', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ room_id: roomId, device: device, status: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                fetchRealtimeData(); // Instant update
+            }
+        });
+    }
+
+    function fetchRealtimeData() {
+        fetch('/api/data/classrooms')
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(room => {
+                    const usageSpan = document.getElementById(`room-usage-${room._id}`);
+                    const lightsIcon = document.getElementById(`lights-icon-${room._id}`);
+                    const lightsCheck = document.getElementById(`lights-check-${room._id}`);
+                    const lightsSlider = document.getElementById(`lights-slider-${room._id}`);
+                    const fansIcon = document.getElementById(`fans-icon-${room._id}`);
+                    const fansCheck = document.getElementById(`fans-check-${room._id}`);
+                    const fansSlider = document.getElementById(`fans-slider-${room._id}`);
+
+                    if(usageSpan) {
+                        usageSpan.innerText = room.usage_status;
+                        usageSpan.className = `status-badge ${room.usage_status === 'Occupied' ? 'status-warning' : 'status-free'}`;
+                    }
+
+                    if(lightsIcon && lightsCheck && lightsSlider) {
+                        if(room.lights_status === 'ON') {
+                            lightsIcon.style.color = '#f59e0b';
+                            lightsCheck.checked = true;
+                            lightsSlider.style.transform = 'translateX(26px)';
+                        } else {
+                            lightsIcon.style.color = '#94a3b8';
+                            lightsCheck.checked = false;
+                            lightsSlider.style.transform = 'translateX(0)';
+                        }
+                    }
+
+                    if(fansIcon && fansCheck && fansSlider) {
+                        if(room.fans_status === 'ON') {
+                            fansIcon.style.color = '#3b82f6';
+                            fansIcon.style.animation = 'spin 2s linear infinite';
+                            fansCheck.checked = true;
+                            fansSlider.style.transform = 'translateX(26px)';
+                        } else {
+                            fansIcon.style.color = '#94a3b8';
+                            fansIcon.style.animation = 'none';
+                            fansCheck.checked = false;
+                            fansSlider.style.transform = 'translateX(0)';
+                        }
+                    }
+                });
+            });
+    }
+    
+    setInterval(fetchRealtimeData, 15000);
+</script>
+{% endblock %}

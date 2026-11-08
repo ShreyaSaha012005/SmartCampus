@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Welcome to <br><span>SRM Institute of Science and Technology</span></h1>
+    <p>Experience the future of education with our AI-powered, IoT-enabled Smart Campus Management System. Everything you need, right at your fingertips.</p>
+    {% if not session.user_id %}
+        <a href="{{ url_for('register') }}" class="btn btn-primary"><i class="fa-solid fa-rocket"></i> Get Started</a>
+    {% else %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary"><i class="fa-solid fa-chart-pie"></i> Go to Dashboard</a>
+    {% endif %}
+</section>
+
+<div class="page-container" style="padding-top: 0;">
+    <div class="dashboard-grid" style="margin-top: -2rem;">
+        <a href="{{ url_for('parking') }}" class="glass-card text-center" style="display: block;">
+            <i class="fa-solid fa-car text-center" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+            <h3>Smart Parking</h3>
+            <p class="mt-1" style="color: var(--text-secondary); font-size: 0.9rem;">Real-time parking slot availability using IoT sensors.</p>
+        </a>
+        <a href="{{ url_for('classroom') }}" class="glass-card text-center" style="display: block;">
+            <i class="fa-solid fa-chalkboard-user" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+            <h3>Classroom Monitoring</h3>
+            <p class="mt-1" style="color: var(--text-secondary); font-size: 0.9rem;">Monitor usage and control lights/fans remotely.</p>
+        </a>
+        <a href="{{ url_for('irrigation') }}" class="glass-card text-center" style="display: block;">
+            <i class="fa-solid fa-leaf" style="font-size: 3rem; color: var(--success); margin-bottom: 1rem;"></i>
+            <h3>Smart Irrigation</h3>
+            <p class="mt-1" style="color: var(--text-secondary); font-size: 0.9rem;">Automated plant watering based on soil moisture.</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

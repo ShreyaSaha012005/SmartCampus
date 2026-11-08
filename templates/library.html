@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Smart Library{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Smart Library</h1>
+        <p>View available books and active borrowings</p>
+    </div>
+    
+    <div class="dashboard-grid">
+        <!-- Available Books Section -->
+        <div class="glass-card" style="grid-column: 1 / -1;">
+            <h2><i class="fa-solid fa-book-open"></i> Book Catalog</h2>
+            <div style="overflow-x: auto; margin-top: 1rem;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Book Title</th>
+                            <th>Author</th>
+                            <th>Total Copies</th>
+                            <th>Available Copies</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in books %}
+                        <tr>
+                            <td style="font-weight: 600;">{{ book.title }}</td>
+                            <td>{{ book.author }}</td>
+                            <td>{{ book.total_copies }}</td>
+                            <td style="font-weight: bold; color: {{ 'var(--success)' if book.available_copies > 0 else 'var(--danger)' }};">{{ book.available_copies }}</td>
+                            <td>
+                                {% if book.available_copies > 0 %}
+                                    <span class="status-badge status-free">Available</span>
+                                {% else %}
+                                    <span class="status-badge status-occupied">Out of Stock</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Borrowing History Section -->
+        <div class="glass-card" style="grid-column: 1 / -1; margin-top: 1rem;">
+            <h2><i class="fa-solid fa-list-check"></i> Books Taken by Students</h2>
+            <div style="overflow-x: auto; margin-top: 1rem;">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Student ID / Name</th>
+                            <th>Book Title</th>
+                            <th>Borrow Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in borrowings %}
+                        <tr>
+                            <td style="font-weight: 600;">
+                                <i class="fa-solid fa-user-graduate" style="color: var(--text-secondary); margin-right: 8px;"></i>
+                                {{ record.student_name }}
+                            </td>
+                            <td>{{ record.book_title }}</td>
+                            <td>
+                                {% if record.borrow_date is string %}
+                                    {{ record.borrow_date }}
+                                {% else %}
+                                    {{ record.borrow_date.strftime('%Y-%m-%d %H:%M') }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="status-badge status-warning">{{ record.status }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

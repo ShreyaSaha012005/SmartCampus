@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="glass-card auth-card">
+        <div class="text-center mb-4">
+            <h2>Welcome Back</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;" class="mt-1">Login to access SRMIST Smart Campus</p>
+        </div>
+        <form action="{{ url_for('login') }}" method="POST">
+            <div class="form-group">
+                <label for="username"><i class="fa-solid fa-user"></i> Username</label>
+                <input type="text" id="username" name="username" class="form-control" required placeholder="Enter your username">
+            </div>
+            <div class="form-group">
+                <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+                <input type="password" id="password" name="password" class="form-control" required placeholder="Enter your password">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Login</button>
+        </form>
+        <p class="text-center mt-3" style="font-size: 0.9rem; color: var(--text-secondary);">
+            Don't have an account? <a href="{{ url_for('register') }}" style="color: var(--accent-color);">Register here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

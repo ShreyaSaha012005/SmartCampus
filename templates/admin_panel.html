@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Admin Control Panel</h1>
+        <p>Manage system settings and view detailed analytics</p>
+    </div>
+    
+    <div class="dashboard-grid">
+        <div class="glass-card">
+            <h3><i class="fa-solid fa-users"></i> User Management</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0.5rem 0 1rem 0;">Manage student and staff access.</p>
+            <button class="btn btn-outline" style="width: 100%;">View Users</button>
+        </div>
+        
+        <div class="glass-card">
+            <h3><i class="fa-solid fa-burger"></i> Canteen Menu</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0.5rem 0 1rem 0;">Add, edit or delete food items.</p>
+            <button class="btn btn-outline" style="width: 100%;">Manage Menu</button>
+        </div>
+        
+        <div class="glass-card">
+            <h3><i class="fa-solid fa-microchip"></i> IoT Devices</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0.5rem 0 1rem 0;">Check sensor health and APIs.</p>
+            <button class="btn btn-outline" style="width: 100%;">Device Status</button>
+        </div>
+        
+        <div class="glass-card">
+            <h3><i class="fa-solid fa-file-invoice"></i> System Logs</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0.5rem 0 1rem 0;">View error logs and activity history.</p>
+            <button class="btn btn-outline" style="width: 100%;">View Logs</button>
+        </div>
+    </div>
+    
+    <div class="glass-card mt-4">
+        <h2>IoT Sensor API Endpoints (For ESP8266/Blynk)</h2>
+        <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-top: 1rem; font-family: monospace; overflow-x: auto;">
+            <p style="color: var(--success);">POST /api/update_sensor</p>
+            <p style="color: var(--text-secondary);">Content-Type: application/json</p>
+            <p style="color: var(--text-secondary);">Body: {"sensor_type": "garbage", "id": 1, "value": 85}</p>
+        </div>
+        <p class="mt-2" style="font-size: 0.9rem; color: var(--text-secondary);">
+            Use this endpoint on your ESP8266 or via Blynk webhooks to sync real-time hardware data to the database.
+        </p>
+    </div>
+</div>
+{% endblock %}

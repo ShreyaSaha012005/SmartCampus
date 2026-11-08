@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Welcome back, {{ session.username }}! Here is your campus overview.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <a href="{{ url_for('parking') }}" class="glass-card text-center">
+            <i class="fa-solid fa-square-parking" style="font-size: 3rem; color: #3b82f6; margin-bottom: 1rem;"></i>
+            <h3>Smart Parking</h3>
+            <p class="mt-1" style="color: var(--text-secondary); font-size: 0.9rem;">Check slots & reserve</p>
+        </a>
+        
+        <a href="{{ url_for('classroom') }}" class="glass-card text-center">
+            <i class="fa-solid fa-lightbulb" style="font-size: 3rem; color: #f59e0b; margin-bottom: 1rem;"></i>
+            <h3>Classrooms</h3>
+            <p class="mt-1" style="color: var(--text-secondary); font-size: 0.9rem;">Monitor & control devices</p>
+        </a>
+
+        <a href="{{ url_for('irrigation') }}" class="glass-card text-center">
+            <i class="fa-solid fa-droplet" style="font-size: 3rem; color: #10b981; margin-bottom: 1rem;"></i>
+            <h3>Irrigation</h3>
+            <p class="mt-1" style="color: var(--text-secondary); font-size: 0.9rem;">Soil moisture & pumps</p>
+        </a>
+
+        <a href="{{ url_for('garbage') }}" class="glass-card text-center">
+            <i class="fa-solid fa-trash" style="font-size: 3rem; color: #ef4444; margin-bottom: 1rem;"></i>
+            <h3>Garbage Bins</h3>
+            <p class="mt-1" style="color: var(--text-secondary); font-size: 0.9rem;">Check fill levels</p>
+        </a>
+
+        <a href="{{ url_for('canteen') }}" class="glass-card text-center">
+            <i class="fa-solid fa-utensils" style="font-size: 3rem; color: #ec4899; margin-bottom: 1rem;"></i>
+            <h3>Smart Canteen</h3>
+            <p class="mt-1" style="color: var(--text-secondary); font-size: 0.9rem;">Order food online</p>
+        </a>
+
+        <a href="{{ url_for('seat_reservation') }}" class="glass-card text-center">
+            <i class="fa-solid fa-chair" style="font-size: 3rem; color: #8b5cf6; margin-bottom: 1rem;"></i>
+            <h3>Seat Reservation</h3>
+            <p class="mt-1" style="color: var(--text-secondary); font-size: 0.9rem;">Book seats in advance</p>
+        </a>
+
+        <a href="{{ url_for('library') }}" class="glass-card text-center">
+            <i class="fa-solid fa-book" style="font-size: 3rem; color: #06b6d4; margin-bottom: 1rem;"></i>
+            <h3>Smart Library</h3>
+            <p class="mt-1" style="color: var(--text-secondary); font-size: 0.9rem;">Check books & borrowings</p>
+        </a>
+    </div>
+
+    {% if session.role == 'admin' %}
+    <div style="margin-top: 3rem;">
+        <h2 style="margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 0.5rem;">System Analytics Overview</h2>
+        <div class="glass-card">
+            <canvas id="mainChart" height="100"></canvas>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if session.role == 'admin' %}
+<script>
+    const ctx = document.getElementById('mainChart').getContext('2d');
+    const mainChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Parking Usage', 'Classroom Energy', 'Water Usage', 'Waste Collection'],
+            datasets: [{
+                label: 'System Activity Levels (%)',
+                data: [65, 45, 80, 55],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.5)',
+                    'rgba(245, 158, 11, 0.5)',
+                    'rgba(16, 185, 129, 0.5)',
+                    'rgba(239, 68, 68, 0.5)'
+                ],
+                borderColor: [
+                    '#3b82f6',
+                    '#f59e0b',
+                    '#10b981',
+                    '#ef4444'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    ticks: { color: '#94a3b8' }
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#94a3b8' }
+                }
+            },
+            plugins: {
+                legend: { labels: { color: '#f8fafc' } }
+            }
+        }
+    });
+</script>
+{% endif %}
+{% endblock %}

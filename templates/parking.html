@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}Smart Parking{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Smart Parking System</h1>
+        <p>View real-time availability and reserve slots</p>
+    </div>
+    
+    <div class="dashboard-grid" id="parking-grid">
+        {% for slot in slots %}
+        <div class="glass-card text-center" id="slot-card-{{ slot.id }}" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div style="font-size: 2rem; font-weight: 800; margin-bottom: 1rem;">{{ slot.slot_name }}</div>
+            
+            <i id="slot-icon-{{ slot.id }}" class="fa-solid fa-car-side" style="font-size: 4rem; margin-bottom: 1rem; {{ 'color: var(--success);' if slot.status == 'Free' else 'color: var(--danger); opacity: 0.5;' }}"></i>
+            
+            <span id="slot-badge-{{ slot.id }}" class="status-badge {{ 'status-free' if slot.status == 'Free' else 'status-occupied' }} mb-4">
+                {{ 'Available' if slot.status == 'Free' else 'Occupied / Reserved' }}
+            </span>
+            
+            <button id="slot-btn-{{ slot.id }}" class="btn btn-primary" onclick="reserveSlot('{{ slot.id }}')" style="{{ 'display: none;' if slot.status != 'Free' else '' }}">Reserve Slot</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function reserveSlot(slotId) {
+        if(confirm("Are you sure you want to reserve this slot?")) {
+            fetch('/reserve_parking', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ slot_id: slotId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    alert("Slot reserved successfully!");
+                    fetchRealtimeData(); // Instant update
+                } else {
+                    alert("Failed to reserve slot. " + (data.message || ''));
+                }
+            });
+        }
+    }
+
+    // Real-time polling
+    function fetchRealtimeData() {
+        fetch('/api/data/parking')
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(slot => {
+                    const icon = document.getElementById(`slot-icon-${slot._id}`);
+                    const badge = document.getElementById(`slot-badge-${slot._id}`);
+                    const btn = document.getElementById(`slot-btn-${slot._id}`);
+                    
+                    if(icon && badge) {
+                        if(slot.status === 'Free') {
+                            icon.style = 'font-size: 4rem; margin-bottom: 1rem; color: var(--success);';
+                            badge.className = 'status-badge status-free mb-4';
+                            badge.innerText = 'Available';
+                            if(btn) btn.style.display = 'inline-block';
+                        } else {
+                            icon.style = 'font-size: 4rem; margin-bottom: 1rem; color: var(--danger); opacity: 0.5;';
+                            badge.className = 'status-badge status-occupied mb-4';
+                            badge.innerText = 'Occupied / Reserved';
+                            if(btn) btn.style.display = 'none';
+                        }
+                    }
+                });
+            });
+    }
+    
+    // Poll every 15 seconds for more realistic IoT telemetry updates
+    setInterval(fetchRealtimeData, 15000);
+</script>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Smart Garbage Monitoring{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1>Smart Garbage Monitoring</h1>
+        <p>Real-time waste bin fill levels across the campus</p>
+    </div>
+    
+    <div class="dashboard-grid" id="garbage-grid">
+        {% for bin in bins %}
+        <div class="glass-card text-center" id="bin-card-{{ bin.id }}">
+            <h3>{{ bin.location }}</h3>
+            
+            <div style="margin: 2rem auto; position: relative; width: 100px; height: 150px; border: 4px solid var(--glass-border); border-top: none; border-radius: 0 0 10px 10px; overflow: hidden; background: rgba(0,0,0,0.2);">
+                <!-- Fill level indicator -->
+                <div id="bin-fill-{{ bin.id }}" style="position: absolute; bottom: 0; left: 0; width: 100%; height: {{ bin.fill_level }}%; background: {{ '#ef4444' if bin.fill_level > 80 else ('#f59e0b' if bin.fill_level > 50 else '#10b981') }}; transition: height 1s, background 1s;"></div>
+                <div id="bin-text-{{ bin.id }}" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); z-index: 10;">
+                    {{ bin.fill_level }}%
+                </div>
+            </div>
+            
+            <div id="bin-status-{{ bin.id }}" class="status-badge {{ 'status-occupied' if bin.status == 'Full' else 'status-free' }} mt-2">
+                <i class="{{ 'fa-solid fa-triangle-exclamation' if bin.status == 'Full' else 'fa-solid fa-check-circle' }}"></i> 
+                {{ 'Bin Full - Collect Now' if bin.status == 'Full' else 'Status Normal' }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function fetchRealtimeData() {
+        fetch('/api/data/garbage')
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(bin => {
+                    const fillDiv = document.getElementById(`bin-fill-${bin._id}`);
+                    const textDiv = document.getElementById(`bin-text-${bin._id}`);
+                    const statusDiv = document.getElementById(`bin-status-${bin._id}`);
+                    
+                    if(fillDiv && textDiv && statusDiv) {
+                        fillDiv.style.height = `${bin.fill_level}%`;
+                        fillDiv.style.background = bin.fill_level > 80 ? '#ef4444' : (bin.fill_level > 50 ? '#f59e0b' : '#10b981');
+                        textDiv.innerText = `${bin.fill_level}%`;
+                        
+                        if(bin.status === 'Full') {
+                            statusDiv.className = 'status-badge status-occupied mt-2';
+                            statusDiv.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Bin Full - Collect Now';
+                        } else {
+                            statusDiv.className = 'status-badge status-free mt-2';
+                            statusDiv.innerHTML = '<i class="fa-solid fa-check-circle"></i> Status Normal';
+                        }
+                    }
+                });
+            });
+    }
+    setInterval(fetchRealtimeData, 15000);
+</script>
+{% endblock %}
